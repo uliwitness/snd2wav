@@ -20,6 +20,15 @@
          ((((u_int32_t)(value))>> 8) & 0x0000FF00)  | \
          ((((u_int32_t)(value))>>24) & 0x000000FF))
 
+#define FLIP_64(value) \
+		(((((u_int64_t)(value))<<56) & 0xFF00000000000000)  | \
+         ((((u_int64_t)(value))<<40) & 0x00FF000000000000)  | \
+         ((((u_int64_t)(value))<<24) & 0x0000FF0000000000)  | \
+         ((((u_int64_t)(value))<< 8) & 0x000000FF00000000)  | \
+         ((((u_int64_t)(value))>> 8) & 0x00000000FF000000)  | \
+         ((((u_int64_t)(value))>>24) & 0x0000000000FF0000)  | \
+         ((((u_int64_t)(value))>>40) & 0x000000000000FF00)  | \
+         ((((u_int64_t)(value))>>56) & 0x00000000000000FF))
 
 
 using namespace std;
@@ -71,6 +80,14 @@ public:
 		sndFile.read( (char*) &num, sizeof(num) );
 		
 		return FLIP_32(num);
+	}
+	
+	double	ReadExtended80()
+	{
+		uint64_t		num = 0;
+		sndFile.read( (char*) &num, sizeof(num) );
+		num = FLIP_64(num);
+		return *(double*)&num;
 	}
 
 	double	ReadFixed()
@@ -125,11 +142,19 @@ public:
 		initNoDrop			= 0x0008		// no drop-sample conversion
 	};
 	
+	enum {
+		stdSH = 0x00,	// standard sound header
+		extSH = 0xff,	// extended sound header
+		cmpSH = 0xfe	// compressed sound header
+	};
+	
 	int	convert()
 	{
-		if( ReadSint16() != 1 )
+		uint16_t	channels = 1;
+		int16_t		sndFormat = ReadSint16();
+		if( sndFormat != 1 )
 		{
-			cerr << "bad snd format\n";
+			cerr << "bad snd format " << sndFormat << "\n";
 			return 1;
 		}
 		if( ReadSint16() != 1 )
@@ -143,7 +168,7 @@ public:
 			return 3;
 		}
 		int32_t	opts = ReadSint32();
-		if( opts != 0x80 && opts != 0xa0 )
+		if( opts != initMono && opts != 0xa0 && opts != initStereo )
 		{
 			cerr << "unhandled opts " << opts << "\n";
 			return 4;
@@ -179,15 +204,41 @@ public:
 		/*uint32_t	loopstart =*/ ReadUint32();
 		/*uint32_t	samplerate =*/ ReadUint32();
 
-		if( ReadUint8() != 0 )
+		uint8_t		sampleEncoding = ReadUint8();
+		if( sampleEncoding != 0 && sampleEncoding != extSH )
 		{
-			cerr << "not standard sample encoding\n";
+			cerr << "not standard sample encoding " << (int)sampleEncoding << "\n";
 			return 10;
 		}
+		if( sampleEncoding == extSH )
+		{
+			channels = numbytes;
+			numbytes = 0;
+		}
+		else if( opts == initStereo )
+			channels = 2;
 		if( ReadUint8() != 0x3c )
 		{
 			cerr << "weird baseFrequency\n";
 			return 11;
+		}
+		uint32_t	data_size = numbytes;
+		uint32_t	rate = samplerate;
+		uint32_t	bytes_sample = 1;
+		if( sampleEncoding == extSH )
+		{
+			uint32_t		numFrames = ReadUint32();
+			/*double	aiffSampleRate =*/ ReadExtended80();
+			/*uint32_t markerChunk =*/ ReadUint32();
+			/*uint32_t instrumentChunks =*/ ReadUint32();
+			/*uint32_t aesRecording =*/ ReadUint32();
+			uint16_t sampleSize = ReadUint16();
+			bytes_sample = sampleSize / 8;
+			/*uint16_t futureUse1 =*/ ReadUint16();
+			/*uint32_t futureUse2 =*/ ReadUint32();
+			/*uint32_t futureUse3 =*/ ReadUint32();
+			/*uint32_t futureUse4 =*/ ReadUint32();
+			numbytes = numFrames * bytes_sample * channels;
 		}
 		
 		// we're up to sound data now, let's write some WAV!
@@ -195,11 +246,9 @@ public:
 		// Thanks also to Jeremiah Morris in the past, who wrote the following for
 		//  a different project, which he copied for this.
 		
-		uint32_t	data_size = numbytes;
-		uint32_t	rate = samplerate;
-		uint32_t	bytes_sample = 1;
-		uint16_t	channels = 1;
 		wavFile.open( wavPath.c_str() );
+		
+		cout << "size: " << data_size << "\nrate: " << rate << "\n channels: " << channels << "\n";
 		
 		print( "RIFF" );			// ChunkID
 		packV( 36 + data_size );	// ChunkSize
