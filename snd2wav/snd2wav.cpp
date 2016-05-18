@@ -30,7 +30,7 @@ public:
 	snd2wav( const string& inSndFile, const string& inWavFile )
 	{
 		sndFile.open( inSndFile.c_str() );
-		wavFile.open( inWavFile.c_str() );
+		wavPath = inWavFile;
 	}
 
 	uint8_t	ReadUint8()
@@ -199,6 +199,7 @@ public:
 		uint32_t	rate = samplerate;
 		uint32_t	bytes_sample = 1;
 		uint16_t	channels = 1;
+		wavFile.open( wavPath.c_str() );
 		
 		print( "RIFF" );			// ChunkID
 		packV( 36 + data_size );	// ChunkSize
@@ -224,19 +225,29 @@ public:
 protected:
 	ifstream	sndFile;
 	ofstream	wavFile;
+	string		wavPath;
 };
 
 
 
 int main( int argc, const char * argv[] )
 {
-	if( argc != 3 )
+	if( argc > 3 || argc < 2 )
 	{
-		cerr << "Syntax: " << argv[0] << " <sndFile> <wavFile>\n";
+		cerr << "Syntax: " << argv[0] << " <sndFile> [<wavFile>]\n";
 		return 100;
 	}
 	
-	snd2wav		converter( argv[1], argv[2] );
+	std::string	dstPath;
+	if( argc > 2 )
+		dstPath = argv[2];
+	else
+	{
+		dstPath = argv[1];
+		dstPath.append(".wav");
+	}
+	
+	snd2wav		converter( argv[1], dstPath );
 
 	return converter.convert();
 }
