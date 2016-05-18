@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 
 #define FLIP_16(value) \
@@ -84,9 +85,34 @@ public:
 	
 	double	ReadExtended80()
 	{
-		uint64_t		num = 0;
-		sndFile.read( (char*) &num, 10 );
-		num = FLIP_64(num);
+		double		num = 0;
+		char		f[10] = {};
+		sndFile.read( f, 10 );
+		
+		bool	sign = false;
+		if( f[0] & (1 << 7) )
+			sign = true;
+		
+		int		exponent = 0;
+		f[0] &= ~(1<<7);	// Take rest of number without sign bit.
+		exponent = (f[0] << 8) | (0x00ff & f[1]);
+		exponent -= 16383;	// subtract bias.
+		
+		for( int i = 2; i < 10; i++ )
+		{
+			for( int j = 7; j >= 0; j-- )
+			{
+				if( (exponent >= 0) && (f[i] & (1 << j)) )
+					num += pow( 2, exponent );
+				else if( (exponent < 0) && (f[i] & (1 << j)) )
+					num += 1.0 / (pow( 2, abs(exponent) ));
+				exponent--;
+			}
+		}
+		
+		if( sign )
+			num = -sign;
+		
 		return num;
 	}
 
@@ -228,7 +254,7 @@ public:
 		if( sampleEncoding == extSH )
 		{
 			uint32_t		numFrames = ReadUint32();
-			/*double	aiffSampleRate =*/ ReadExtended80();
+			double	aiffSampleRate = ReadExtended80();
 			/*uint32_t markerChunk =*/ ReadUint32();
 			/*uint32_t instrumentChunks =*/ ReadUint32();
 			/*uint32_t aesRecording =*/ ReadUint32();
@@ -240,6 +266,7 @@ public:
 			/*uint32_t futureUse4 =*/ ReadUint32();
 			data_size = numFrames * bytes_sample * channels;
 			numbytes = data_size;
+			rate = aiffSampleRate;
 		}
 		
 		// we're up to sound data now, let's write some WAV!
