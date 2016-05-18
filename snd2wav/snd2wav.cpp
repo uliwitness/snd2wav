@@ -293,8 +293,21 @@ public:
 		
 		print("data");				// Subchunk2ID
 		packV( data_size );			// Subchunk2Size
-		for( uint32_t i = 0; i < numbytes; i++ )
-			print( ReadUint8() );
+		if( bytes_sample == 2 )
+		{
+			for( uint32_t i = 0; i < (numbytes /2); i++ )
+			{
+				uint16_t	theByte = 0;
+				sndFile.read( (char*) &theByte, sizeof(theByte) );
+				theByte = FLIP_16(theByte);
+				wavFile.write( (char*) &theByte, sizeof(theByte) );
+			}
+		}
+		else
+		{
+			for( uint32_t i = 0; i < numbytes; i++ )
+				print( ReadUint8() );
+		}
 		
 		return 0;
 	}
