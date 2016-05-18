@@ -111,12 +111,12 @@ public:
 	
 	// Flags for the opts field:
 	enum {
-		initChanLeft		= 0x0002,		// left stereo channel}
-		initChanRight		= 0x0003,		// right stereo channel}
-		waveInitChannel0	= 0x0004,		// wave-table channel 0}
-		waveInitChannel1	= 0x0005,		// wave-table channel 1}
-		waveInitChanne12	= 0x0006,		// wave-table channel 2}
-		waveInitChannel3	= 0x0007,		// wave-table channel 3}
+		initChanLeft		= 0x0002,		// left stereo channel
+		initChanRight		= 0x0003,		// right stereo channel
+		waveInitChannel0	= 0x0004,		// wave-table channel 0
+		waveInitChannel1	= 0x0005,		// wave-table channel 1
+		waveInitChanne12	= 0x0006,		// wave-table channel 2
+		waveInitChannel3	= 0x0007,		// wave-table channel 3
 		initMono			= 0x0080,		// monophonic channel
 		initStereo			= 0x00C0,		// stereo channel
 		initMACE3			= 0x0300,		// 3:1 compression
