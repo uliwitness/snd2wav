@@ -85,9 +85,9 @@ public:
 	double	ReadExtended80()
 	{
 		uint64_t		num = 0;
-		sndFile.read( (char*) &num, sizeof(num) );
+		sndFile.read( (char*) &num, 10 );
 		num = FLIP_64(num);
-		return *(double*)&num;
+		return num;
 	}
 
 	double	ReadFixed()
@@ -238,7 +238,8 @@ public:
 			/*uint32_t futureUse2 =*/ ReadUint32();
 			/*uint32_t futureUse3 =*/ ReadUint32();
 			/*uint32_t futureUse4 =*/ ReadUint32();
-			numbytes = numFrames * bytes_sample * channels;
+			data_size = numFrames * bytes_sample * channels;
+			numbytes = data_size;
 		}
 		
 		// we're up to sound data now, let's write some WAV!
