@@ -178,35 +178,46 @@ public:
 	{
 		uint16_t	channels = 1;
 		int16_t		sndFormat = ReadSint16();
-		if( sndFormat != 1 )
+		if( sndFormat != 1 && sndFormat != 2 )
 		{
 			cerr << "bad snd format " << sndFormat << "\n";
 			return 1;
 		}
-		if( ReadSint16() != 1 )
+		uint32_t	sndHeaderOffset = 20;
+		int32_t		opts = 0;
+		if( sndFormat == 2 )
 		{
-			cerr << "too many data types\n";
-			return 2;
+			ReadSint16();	// "reference count" for app use.
+			sndHeaderOffset = 14;
 		}
-		if( ReadSint16() != 5 )
+		else
 		{
-			cerr << "not sampled sound\n";
-			return 3;
-		}
-		int32_t	opts = ReadSint32();
-		if( opts != initMono && opts != 0xa0 && opts != initStereo )
-		{
-			cerr << "unhandled opts " << opts << "\n";
-			return 4;
+			if( ReadSint16() != 1 )
+			{
+				cerr << "too many data types\n";
+				return 2;
+			}
+			if( ReadSint16() != 5 )
+			{
+				cerr << "not sampled sound\n";
+				return 3;
+			}
+			int32_t	opts = ReadSint32();
+			if( opts != initMono && opts != 0xa0 && opts != initStereo )
+			{
+				cerr << "unhandled opts " << opts << "\n";
+				return 4;
+			}
 		}
 		if( ReadSint16() != 1 )
 		{
 			cerr << "too many commands\n";
 			return 5;
 		}
-		if( ReadUint16() != 0x8051 )
+		uint16_t	sndCommand = ReadUint16();
+		if( sndCommand != 0x8051 && sndCommand != 0x8050 )
 		{
-			cerr << "not a bufferCmd\n";
+			cerr << "not a bufferCmd or sndCmd" << sndCommand << "\n";
 			return 6;
 		}
 		if( ReadSint16() != 0 )
@@ -214,7 +225,7 @@ public:
 			cerr << "bad param1\n";
 			return 7;
 		}
-		if( ReadSint32() != 20 )
+		if( ReadSint32() != sndHeaderOffset )
 		{
 			cerr << "bad param2\n";
 			return 8;
@@ -243,10 +254,15 @@ public:
 		}
 		else if( opts == initStereo )
 			channels = 2;
-		if( ReadUint8() != 0x3c )
+		uint8_t		baseFrequency = ReadUint8();
+		float		factor = 1.0;
+		if( baseFrequency != 60 )
 		{
-			cerr << "weird baseFrequency\n";
-			return 11;
+			factor = (baseFrequency / 127.0);
+			factor = 1.0 +(factor -0.5);
+			factor = 1 / factor;
+			cerr << "weird baseFrequency " << (int) baseFrequency << "expected 60 out of 0...127. WAV will play " << factor << "x.\n";
+			factor = 0.8;
 		}
 		uint32_t	data_size = numbytes;
 		uint32_t	rate = samplerate;
@@ -286,7 +302,7 @@ public:
 		packV(16);					// Subchunk1Size
 		packv(1);					// AudioFormat
 		packv(channels);			// NumChannels
-		packV(rate);				// SampleRate
+		packV(rate * factor);		// SampleRate
 		packV(rate * channels * bytes_sample);	// ByteRate
 		packv( channels * bytes_sample );		// BlockAlign
 		packv( bytes_sample * 8 );				// BitsPerSample
