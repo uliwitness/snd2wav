@@ -6,6 +6,18 @@
 //  Copyright © 2016 Uli Kusterer. All rights reserved.
 //
 
+/*
+	Useful docs:
+		http://soundfile.sapp.org/doc/WaveFormat/
+		https://developer.apple.com/legacy/library/documentation/mac/pdf/Sound/Sound_Manager.pdf
+		http://mirror.informatimago.com/next/developer.apple.com/documentation/mac/Sound/Sound-75.html#HEADING75-0
+		http://mirror.informatimago.com/next/developer.apple.com/documentation/mac/Sound/Sound-68.html
+		http://mirror.informatimago.com/next/developer.apple.com/documentation/mac/Sound/Sound-76.html#MARKER-9-702
+		http://mirror.informatimago.com/next/developer.apple.com/documentation/mac/Sound/Sound-66.html#HEADING66-0
+		http://mirror.informatimago.com/next/developer.apple.com/documentation/mac/Sound/Sound-60.html#MARKER-9-400
+		http://www.instructables.com/id/How-to-Read-aiff-Files-using-C/?ALLSTEPS
+*/
+
 #include <iostream>
 #include <fstream>
 #include <math.h>
