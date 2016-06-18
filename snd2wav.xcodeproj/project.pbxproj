@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5564127D1CE7D94600D6FBBB /* snd2wav.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5564127C1CE7D94600D6FBBB /* snd2wav.cpp */; };
+		55C76D491D15D0E300A07B65 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55C76D481D15D0E300A07B65 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		556412791CE7D94600D6FBBB /* snd2wav */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = snd2wav; sourceTree = BUILT_PRODUCTS_DIR; };
 		5564127C1CE7D94600D6FBBB /* snd2wav.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = snd2wav.cpp; sourceTree = "<group>"; };
+		55C76D481D15D0E300A07B65 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		55C76D4A1D15D12500A07B65 /* snd2wav.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = snd2wav.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +60,9 @@
 		5564127B1CE7D94600D6FBBB /* snd2wav */ = {
 			isa = PBXGroup;
 			children = (
+				55C76D4A1D15D12500A07B65 /* snd2wav.h */,
 				5564127C1CE7D94600D6FBBB /* snd2wav.cpp */,
+				55C76D481D15D0E300A07B65 /* main.cpp */,
 			);
 			path = snd2wav;
 			sourceTree = "<group>";
@@ -118,6 +123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55C76D491D15D0E300A07B65 /* main.cpp in Sources */,
 				5564127D1CE7D94600D6FBBB /* snd2wav.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -239,6 +245,7 @@
 				556412821CE7D94600D6FBBB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
