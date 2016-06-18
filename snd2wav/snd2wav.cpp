@@ -24,17 +24,22 @@
 #include <math.h>
 
 
-#define FLIP_16(value) \
+#ifndef S2W_FLIP_16
+#define S2W_FLIP_16(value) \
         (((((u_int16_t)(value))<<8) & 0xFF00)   | \
          ((((u_int16_t)(value))>>8) & 0x00FF))
+#endif
 
-#define FLIP_32(value) \
+#ifndef S2W_FLIP_32
+#define S2W_FLIP_32(value) \
         (((((u_int32_t)(value))<<24) & 0xFF000000)  | \
          ((((u_int32_t)(value))<< 8) & 0x00FF0000)  | \
          ((((u_int32_t)(value))>> 8) & 0x0000FF00)  | \
          ((((u_int32_t)(value))>>24) & 0x000000FF))
+#endif
 
-#define FLIP_64(value) \
+#ifndef S2W_FLIP_64
+#define S2W_FLIP_64(value) \
 		(((((u_int64_t)(value))<<56) & 0xFF00000000000000)  | \
          ((((u_int64_t)(value))<<40) & 0x00FF000000000000)  | \
          ((((u_int64_t)(value))<<24) & 0x0000FF0000000000)  | \
@@ -43,6 +48,7 @@
          ((((u_int64_t)(value))>>24) & 0x0000000000FF0000)  | \
          ((((u_int64_t)(value))>>40) & 0x000000000000FF00)  | \
          ((((u_int64_t)(value))>>56) & 0x00000000000000FF))
+#endif
 
 
 using namespace std;
@@ -67,7 +73,7 @@ int16_t	snd2wav::ReadSint16()
 	int16_t		num = 0;
 	sndFile.read( (char*) &num, sizeof(num) );
 	
-	return FLIP_16(num);
+	return S2W_FLIP_16(num);
 }
 
 uint16_t	snd2wav::ReadUint16()
@@ -75,7 +81,7 @@ uint16_t	snd2wav::ReadUint16()
 	uint16_t		num = 0;
 	sndFile.read( (char*) &num, sizeof(num) );
 	
-	return FLIP_16(num);
+	return S2W_FLIP_16(num);
 }
 
 int32_t	snd2wav::ReadSint32()
@@ -83,7 +89,7 @@ int32_t	snd2wav::ReadSint32()
 	int32_t		num = 0;
 	sndFile.read( (char*) &num, sizeof(num) );
 	
-	return FLIP_32(num);
+	return S2W_FLIP_32(num);
 }
 
 uint32_t	snd2wav::ReadUint32()
@@ -91,7 +97,7 @@ uint32_t	snd2wav::ReadUint32()
 	int32_t		num = 0;
 	sndFile.read( (char*) &num, sizeof(num) );
 	
-	return FLIP_32(num);
+	return S2W_FLIP_32(num);
 }
 
 double	snd2wav::ReadExtended80()
@@ -132,7 +138,7 @@ double	snd2wav::ReadFixed()
 	int32_t	num = 0;
 	sndFile.read( (char*) &num, sizeof(num) );
 	
-	return double(FLIP_32(num)) / 65536.0;
+	return double(S2W_FLIP_32(num)) / 65536.0;
 }
 
 double	snd2wav::ReadUFixed()
@@ -140,7 +146,7 @@ double	snd2wav::ReadUFixed()
 	uint32_t	num = 0;
 	sndFile.read( (char*) &num, sizeof(num) );
 	
-	return double(FLIP_32(num)) / 65536.0;
+	return double(S2W_FLIP_32(num)) / 65536.0;
 }
 
 void	snd2wav::print( const char* str )
@@ -326,7 +332,7 @@ int	snd2wav::convert()
 		{
 			uint16_t	theByte = 0;
 			sndFile.read( (char*) &theByte, sizeof(theByte) );
-			theByte = FLIP_16(theByte);
+			theByte = S2W_FLIP_16(theByte);
 			wavFile.write( (char*) &theByte, sizeof(theByte) );
 		}
 	}
